@@ -12,8 +12,8 @@ type DeepMerge<T extends object, U extends object> = {
     : never;
 };
 
-function isObject(item: any): item is Record<string, any> {
-  return (item && typeof item === 'object' && !Array.isArray(item) && !(item instanceof Date) && !(item instanceof RegExp));
+function isObjectOrArray(item: any): item is object {
+  return (item && typeof item === 'object' && !(item instanceof Date) && !(item instanceof RegExp));
 }
 
 function deepMerge<T extends Record<string, any>, U extends Record<string, any>>(obj1: T, obj2: U): DeepMerge<T, U> {
@@ -27,8 +27,14 @@ function deepMerge<T extends Record<string, any>, U extends Record<string, any>>
 
   for (const key in obj2) {
     if (obj2.hasOwnProperty(key)) {
-      if (isObject(result[key]) && isObject(obj2[key])) {
-        result[key] = deepMerge(result[key], obj2[key]);
+      if (isObjectOrArray(result[key]) && isObjectOrArray(obj2[key])) {
+        if (Array.isArray(result[key]) && Array.isArray(obj2[key])) {
+          result[key] = result[key].concat(obj2[key]);
+        } else if (!Array.isArray(result[key]) && !Array.isArray(obj2[key])) {
+          result[key] = deepMerge(result[key], obj2[key]);
+        } else {
+          result[key] = obj2[key];
+        }
       } else {
         result[key] = obj2[key];
       }
@@ -42,4 +48,4 @@ function deepMerge<T extends Record<string, any>, U extends Record<string, any>>
 console.log(deepMerge({ foo: true }, { bar: false })); //* { foo: true, bar: false }
 console.log(deepMerge({ foo: true, nested: { bar: 0 } }, { foo: false })); //* { foo: false, nested: { bar: 0 } }
 console.log(deepMerge({ foo: true }, { foo: false })); //* { foo: false }
-console.log(deepMerge({ array: [2, 4] }, { array: [1, 3] })); //* { array: [1, 3] }
+console.log(deepMerge({ array: [2, 4] }, { array: [1, 3] })); //* { array: [2, 4, 1, 3] }
