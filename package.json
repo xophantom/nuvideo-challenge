@@ -3,6 +3,11 @@
   "version": "1.0.0",
   "main": "index.js",
   "license": "MIT",
+  "scripts": {
+    "q1": "ts-node src/undefinedToNull.ts",
+    "q2": "ts-node src/deepMerge.ts",
+    "q3": "ts-node src/lengthOfLongestSubstring.ts"
+  },
   "devDependencies": {
     "ts-node": "^10.9.2",
     "typescript": "^5.4.5"
